@@ -62,10 +62,10 @@ router.get('/posts', function(req, res, next){
 
 
 // post posts route.. add to the database
-router.post('/posts', function(req, res, next){
+router.post('/posts', auth, function(req, res, next){
   // create new post object
   var post = new Post(req.body);
-
+  post.author = req.payload.username;
   // save the post object just created to the Database..
   post.save(function(err, post){
     if(err){return next(err);}
@@ -92,7 +92,7 @@ router.param('post', function(req, res, next, id) {
 });
 
 // this grabs the comment just like the post..
-router.param('comment', function(res, req, next, id){
+router.param('comment', function(req, res, next, id){
   var query = Comment.findById(id);
 
   query.exec(function(err, comment) {
@@ -141,6 +141,7 @@ router.put('/posts/:post/upvote', auth, function(req, res, next){
 router.post('/posts/:post/comments', auth, function(req, res, next) {
   var comment = new Comment(req.body);
   comment.post = req.post;
+  comment.author = req.payload.username;
 
   comment.save(function(err, comment){
     if(err){ return next(err); }
